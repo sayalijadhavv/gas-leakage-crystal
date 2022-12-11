@@ -1,0 +1,71 @@
+#include<LiquidCrystal.h>//Library function of liquid crystal
+int AssumedTemp=0;//initialize a variable named AssumedTemp
+int GasValue=0;//initialize a variable named Gas Value
+int buzzer=0;//Arduino pin connected to buzzer
+LiquidCrystal lcd(12,11,5,4,3,2);//Arduino pins connected to lcd
+void setup()
+{
+  pinMode(A0, INPUT);//initialize Gas Sensor pin A0 as input
+  pinMode(9,OUTPUT);//initialize buzzer as output
+  pinMode(A1,INPUT);//initialize Temperature Sensor pin A1 as input
+  pinMode(6,OUTPUT);//initialize LED pin 6 as output
+  pinMode(7,OUTPUT);//initialize LED pin 7 as output
+  pinMode(8,OUTPUT);//initialize LED pin 8 as output
+  Serial begin(9600);//open the serial port at 9600 bps
+  lcd.begin(16,2);//initializes the interface to the LED screen
+}
+ void loop()
+ {
+   Gas();//small loop for Gas Sensor
+   tmp();//small loop for Temperature Sensor
+ }
+void Gas()
+{
+  GasValue=analogRead(A0);//read teh value from Gas Sensor
+  Serial.print("in m^3");//prints character in serial monitor
+  Serial.println(GasValue);//prints the value stored in GasValue with newline character in serial monitor
+  if(GasValue>85)//check if the GasValue is greater than 85.If it is,
+  {
+    digitalWrite(9,HIGH);//turn the buzzer on by making the voltage HIGH
+    delay(1000);//wait for 1 second
+    digitalWrite(9,LOW);//turn the buzzer off by making the voltage LOW
+  }
+}
+void tmp()
+{
+  AssumedTemp=30;//Variable AssumedTemp is stored withvalue 30
+ float degreeC;//initialie a variable named degreeC
+  degreeC=map(((analogRead(A1)-20)*3.04),0,1023,-40,125);//
+  derived formula to calculate Temperature
+    Serial.print("in C");//prints character in serial monitor
+  Serial.println(degreeC);//prints the value stored in degreeC with newline character in serial monitor
+  lcd.clear();//clear lcd screen
+  lcd.setCursor(0,0);//set lcd cursor at 0th column and 0th row
+  lcd.print("Temperature:");//prints the character on lcd screen
+  lcd.setCursor(0,1);//set lcd cusror at 0th column and 1st row
+  lcd.print(degreeC);//prints the value stored in degreeC on lcd screen delay(1000);//wait 1 second
+  if(degreeC<AssumedTemp)//check if the value degreeC is less than AssumedTemp.If it i,
+  {
+    digitalWrite(6,HIGH);//turn the green LED on by making the voltage HIGH
+    digitalWrite(7,LOW);//turn the white LED off by making the voltage LOW
+    digitalWrite(8,LOW);//turn the red LED off by making the voltage LOW
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Temperature is");//prints the character on lcd screen
+    lcd.setCursor(0,0);
+    lcd.print("LOW");//prints the character on lcd screen
+    delay(1000);
+  }
+  if(degreeC==AssumedTemp)//check if the value degreeC is exactly equal to AssumedTemp.If it is,
+  {
+    digitalWrite(6,LOW);//turn the green LED off by making the voltage LOW
+    digitalWrite(7,HIGH);//turn the white LED on by making the voltage HIGH
+    digitalWrite(8,LOW);//turn the red LED off by making the voltage LOW
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Temperature is");
+    lcd.setCursor(0,1);
+    lcd.print("HIGH");
+    delay(1000);
+  }
+}
